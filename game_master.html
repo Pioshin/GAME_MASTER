@@ -738,18 +738,21 @@
 
         .print-sheet {
             width: 297mm;
-            height: 210mm;
+            min-height: 210mm;
             background: white;
-            padding: 20mm;
-            gap: 10mm;
+            padding: 10mm;
+            gap: 5mm;
             color: #333;
+            flex-wrap: wrap;
         }
 
         .print-card {
-            flex: 1;
+            flex: 1 1 45%;
+            min-width: 45%;
             border: 2px solid #1a7a3a;
             border-radius: 10px;
-            padding: 15mm;
+            padding: 10mm;
+            box-sizing: border-box;
         }
 
         .print-card h2 {
@@ -963,37 +966,8 @@
     </div>
 
     <!-- ═══════════════════════ PRINT SHEETS ═══════════════════════ -->
-    <div class="print-only print-sheet">
-        <div class="print-card">
-            <h2 id="print_n1">☘️ Eroina</h2>
-            <div class="field"><b>Tratti:</b> <span id="print_t1">—</span></div>
-            <div class="field"><b>Inventario:</b> ________________________</div>
-            <div class="notes-lines">
-                <b>Note:</b>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-        </div>
-        <div class="print-card">
-            <h2 id="print_n2">☘️ Eroe</h2>
-            <div class="field"><b>Tratti:</b> <span id="print_t2">—</span></div>
-            <div class="field"><b>Inventario:</b> ________________________</div>
-            <div class="notes-lines">
-                <b>Note:</b>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-        </div>
+    <div class="print-only print-sheet" id="printSheet">
+        <!-- Generato dinamicamente -->
     </div>
 
     <!-- ═══════════════════════ FOOTER ═══════════════════════ -->
@@ -1052,12 +1026,34 @@
         // ═══ State ═══
         let gameState = {
             currentScene: 0,
-            p1: { name: '', traits: '' },
-            p2: { name: '', traits: '' },
+            players: [],
             apiKey: '',
             log: [],
             aiHistory: []
         };
+
+        const PLAYER_ICONS = ['🌸', '🎩', '🦊', '🦉', '🐻', '🐺'];
+
+        function generatePlayerInputs(count) {
+            if(!count) count = parseInt(document.getElementById('playerCount').value) || 2;
+            const grid = document.getElementById('playersGrid');
+            grid.innerHTML = '';
+            for(let i=0; i<count; i++) {
+                grid.innerHTML += `
+                    <div class="player-card glass panel">
+                        <h3>${PLAYER_ICONS[i] || '👤'} Giocatore ${i+1}</h3>
+                        <div class="input-group">
+                            <label>Nome</label>
+                            <input type="text" id="p${i}_name" placeholder="Es: Personaggio ${i+1}">
+                        </div>
+                        <div class="input-group">
+                            <label>Tratti (3)</label>
+                            <textarea id="p${i}_traits" placeholder="Es: Tratto 1, Tratto 2, Tratto 3"></textarea>
+                        </div>
+                    </div>
+                `;
+            }
+        }
 
         // ═══ Screen Navigation ═══
         function showScreen(id) {
@@ -1067,27 +1063,36 @@
 
         function goToSetup() {
             showScreen('setup');
+            if (document.getElementById('playersGrid').innerHTML.trim() === '') {
+                generatePlayerInputs();
+            }
         }
 
         function startGame() {
-            gameState.p1.name = document.getElementById('p1_name').value || 'Eroina';
-            gameState.p1.traits = document.getElementById('p1_traits').value || 'Misteriosa';
-            gameState.p2.name = document.getElementById('p2_name').value || 'Eroe';
-            gameState.p2.traits = document.getElementById('p2_traits').value || 'Coraggioso';
+            const count = parseInt(document.getElementById('playerCount').value) || 2;
+            gameState.players = [];
+            for(let i=0; i<count; i++) {
+                gameState.players.push({
+                    name: document.getElementById(`p${i}_name`).value || `Personaggio ${i+1}`,
+                    traits: document.getElementById(`p${i}_traits`).value || 'Sconosciuto'
+                });
+            }
             gameState.apiKey = document.getElementById('apiKey').value;
 
             updatePlayersSummary();
             showScreen('game');
             loadMusicPlayer();
-            addLog('🍺', `${gameState.p1.name} e ${gameState.p2.name} iniziano l'avventura!`);
+            const names = gameState.players.map(p => p.name).join(', ');
+            addLog('🍺', `${names} iniziano l'avventura!`);
             saveGame();
         }
 
         function updatePlayersSummary() {
-            document.getElementById('playersSummary').innerHTML = `
-        <div style="margin-bottom: 8px;"><strong style="color: var(--gold);">🌸 ${gameState.p1.name}</strong><br>${gameState.p1.traits}</div>
-        <div><strong style="color: var(--gold);">🎩 ${gameState.p2.name}</strong><br>${gameState.p2.traits}</div>
-    `;
+            const summary = document.getElementById('playersSummary');
+            summary.innerHTML = '';
+            gameState.players.forEach((p, idx) => {
+                summary.innerHTML += `<div style="margin-bottom: 8px;"><strong style="color: var(--gold);">${PLAYER_ICONS[idx] || '👤'} ${p.name}</strong><br>${p.traits}</div>`;
+            });
         }
 
         function loadMusicPlayer() {
@@ -1248,8 +1253,7 @@ Dai suggerimenti creativi, descrivi ambienti con dettagli sensoriali, e mantieni
 Non rivelare il finale a meno che i giocatori non siano al Capitolo Finale.
 
 GIOCATORI:
-- ${gameState.p1.name}: ${gameState.p1.traits}
-- ${gameState.p2.name}: ${gameState.p2.traits}
+${gameState.players.map(p => `- ${p.name}: ${p.traits}`).join('\n')}
 
 SCENA ATTUALE: ${currentScene.title}
 TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}
@@ -1326,11 +1330,24 @@ DOMANDA DEL GIOCATORE: ${query}
 
         function resumeGame() {
             if (loadGame()) {
+                // Migrate old save format if necessary
+                if (!gameState.players && gameState.p1 && gameState.p2) {
+                    gameState.players = [gameState.p1, gameState.p2];
+                }
+                
                 // Restore fields
-                document.getElementById('p1_name').value = gameState.p1.name;
-                document.getElementById('p1_traits').value = gameState.p1.traits;
-                document.getElementById('p2_name').value = gameState.p2.name;
-                document.getElementById('p2_traits').value = gameState.p2.traits;
+                if (gameState.players) {
+                    document.getElementById('playerCount').value = gameState.players.length;
+                    generatePlayerInputs(gameState.players.length);
+                    
+                    gameState.players.forEach((p, i) => {
+                        const nameEl = document.getElementById(`p${i}_name`);
+                        const traitsEl = document.getElementById(`p${i}_traits`);
+                        if(nameEl) nameEl.value = p.name;
+                        if(traitsEl) traitsEl.value = p.traits;
+                    });
+                }
+                
                 if (gameState.apiKey) document.getElementById('apiKey').value = gameState.apiKey;
 
                 updatePlayersSummary();
@@ -1362,15 +1379,33 @@ DOMANDA DEL GIOCATORE: ${query}
 
         // ═══ Print ═══
         window.onbeforeprint = function () {
-            document.getElementById('print_n1').textContent = '☘️ ' + (document.getElementById('p1_name').value || 'Eroina');
-            document.getElementById('print_t1').textContent = document.getElementById('p1_traits').value || '—';
-            document.getElementById('print_n2').textContent = '☘️ ' + (document.getElementById('p2_name').value || 'Eroe');
-            document.getElementById('print_t2').textContent = document.getElementById('p2_traits').value || '—';
+            const printSheet = document.getElementById('printSheet');
+            printSheet.innerHTML = '';
+            const count = parseInt(document.getElementById('playerCount').value) || 2;
+            
+            for(let i=0; i<count; i++) {
+                const name = document.getElementById(`p${i}_name`)?.value || `Personaggio ${i+1}`;
+                const traits = document.getElementById(`p${i}_traits`)?.value || '—';
+                const icon = PLAYER_ICONS[i%PLAYER_ICONS.length] || '☘️';
+                
+                printSheet.innerHTML += `
+                    <div class="print-card">
+                        <h2>${icon} ${name}</h2>
+                        <div class="field"><b>Tratti:</b> <span>${traits}</span></div>
+                        <div class="field"><b>Inventario:</b> ________________________</div>
+                        <div class="notes-lines">
+                            <b>Note:</b>
+                            ${'<div></div>'.repeat(count > 4 ? 4 : 7)}
+                        </div>
+                    </div>
+                `;
+            }
         };
 
         // ═══ Init ═══
         document.addEventListener('DOMContentLoaded', () => {
             initReels();
+            generatePlayerInputs(2); // Inizializza con 2 giocatori di default
 
             // Check for saved game
             if (localStorage.getItem('oflannery_save')) {
