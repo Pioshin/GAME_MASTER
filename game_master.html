@@ -842,34 +842,21 @@
 
             <div class="config-bar glass">
                 <span class="label">🔑 Gemini API Key</span>
-                <input type="password" id="apiKey" placeholder="Inserisci per attivare il Master AI...">
+                <input type="password" id="apiKey" placeholder="Inserisci per attivare il Master AI..." style="flex:1;">
+
+                <span class="label" style="margin-left:auto;">👥 Giocatori</span>
+                <select id="playerCount" onchange="generatePlayerInputs()"
+                    style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body);">
+                    <option value="2">2 Giocatori</option>
+                    <option value="3">3 Giocatori</option>
+                    <option value="4">4 Giocatori</option>
+                    <option value="5">5 Giocatori</option>
+                    <option value="6">6 Giocatori</option>
+                </select>
             </div>
 
-            <div class="players-grid">
-                <div class="player-card glass panel">
-                    <h3>🌸 Giocatrice</h3>
-                    <div class="input-group">
-                        <label>Nome</label>
-                        <input type="text" id="p1_name" placeholder="Es: Bridget O'Sullivan">
-                    </div>
-                    <div class="input-group">
-                        <label>Tratti (3)</label>
-                        <textarea id="p1_traits"
-                            placeholder="Es: Lingua Tagliente, Occhio di Falco, Fascino Irresistibile"></textarea>
-                    </div>
-                </div>
-                <div class="player-card glass panel">
-                    <h3>🎩 Giocatore</h3>
-                    <div class="input-group">
-                        <label>Nome</label>
-                        <input type="text" id="p2_name" placeholder="Es: Declan O'Flannery">
-                    </div>
-                    <div class="input-group">
-                        <label>Tratti (3)</label>
-                        <textarea id="p2_traits"
-                            placeholder="Es: Fortuna Sfacciata, Pugni d'Acciaio, Cuore Tenero"></textarea>
-                    </div>
-                </div>
+            <div class="players-grid" id="playersGrid">
+                <!-- Dynamically populated by generatePlayerInputs() -->
             </div>
 
             <div class="setup-actions">
@@ -1035,16 +1022,16 @@
         const PLAYER_ICONS = ['🌸', '🎩', '🦊', '🦉', '🐻', '🐺'];
 
         function generatePlayerInputs(count) {
-            if(!count) count = parseInt(document.getElementById('playerCount').value) || 2;
+            if (!count) count = parseInt(document.getElementById('playerCount').value) || 2;
             const grid = document.getElementById('playersGrid');
             grid.innerHTML = '';
-            for(let i=0; i<count; i++) {
+            for (let i = 0; i < count; i++) {
                 grid.innerHTML += `
                     <div class="player-card glass panel">
-                        <h3>${PLAYER_ICONS[i] || '👤'} Giocatore ${i+1}</h3>
+                        <h3>${PLAYER_ICONS[i] || '👤'} Giocatore ${i + 1}</h3>
                         <div class="input-group">
                             <label>Nome</label>
-                            <input type="text" id="p${i}_name" placeholder="Es: Personaggio ${i+1}">
+                            <input type="text" id="p${i}_name" placeholder="Es: Personaggio ${i + 1}">
                         </div>
                         <div class="input-group">
                             <label>Tratti (3)</label>
@@ -1071,9 +1058,9 @@
         function startGame() {
             const count = parseInt(document.getElementById('playerCount').value) || 2;
             gameState.players = [];
-            for(let i=0; i<count; i++) {
+            for (let i = 0; i < count; i++) {
                 gameState.players.push({
-                    name: document.getElementById(`p${i}_name`).value || `Personaggio ${i+1}`,
+                    name: document.getElementById(`p${i}_name`).value || `Personaggio ${i + 1}`,
                     traits: document.getElementById(`p${i}_traits`).value || 'Sconosciuto'
                 });
             }
@@ -1334,20 +1321,20 @@ DOMANDA DEL GIOCATORE: ${query}
                 if (!gameState.players && gameState.p1 && gameState.p2) {
                     gameState.players = [gameState.p1, gameState.p2];
                 }
-                
+
                 // Restore fields
                 if (gameState.players) {
                     document.getElementById('playerCount').value = gameState.players.length;
                     generatePlayerInputs(gameState.players.length);
-                    
+
                     gameState.players.forEach((p, i) => {
                         const nameEl = document.getElementById(`p${i}_name`);
                         const traitsEl = document.getElementById(`p${i}_traits`);
-                        if(nameEl) nameEl.value = p.name;
-                        if(traitsEl) traitsEl.value = p.traits;
+                        if (nameEl) nameEl.value = p.name;
+                        if (traitsEl) traitsEl.value = p.traits;
                     });
                 }
-                
+
                 if (gameState.apiKey) document.getElementById('apiKey').value = gameState.apiKey;
 
                 updatePlayersSummary();
@@ -1382,12 +1369,12 @@ DOMANDA DEL GIOCATORE: ${query}
             const printSheet = document.getElementById('printSheet');
             printSheet.innerHTML = '';
             const count = parseInt(document.getElementById('playerCount').value) || 2;
-            
-            for(let i=0; i<count; i++) {
-                const name = document.getElementById(`p${i}_name`)?.value || `Personaggio ${i+1}`;
+
+            for (let i = 0; i < count; i++) {
+                const name = document.getElementById(`p${i}_name`)?.value || `Personaggio ${i + 1}`;
                 const traits = document.getElementById(`p${i}_traits`)?.value || '—';
-                const icon = PLAYER_ICONS[i%PLAYER_ICONS.length] || '☘️';
-                
+                const icon = PLAYER_ICONS[i % PLAYER_ICONS.length] || '☘️';
+
                 printSheet.innerHTML += `
                     <div class="print-card">
                         <h2>${icon} ${name}</h2>
