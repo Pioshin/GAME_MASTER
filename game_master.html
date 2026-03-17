@@ -737,22 +737,31 @@
         }
 
         .print-sheet {
-            width: 297mm;
-            min-height: 210mm;
-            background: white;
-            padding: 10mm;
-            gap: 5mm;
-            color: #333;
+            width: 100%;
+            display: flex;
             flex-wrap: wrap;
+            gap: 10mm;
+            padding: 0;
+            margin: 0;
+            background: white;
+            color: #333;
         }
 
         .print-card {
-            flex: 1 1 45%;
-            min-width: 45%;
+            width: calc(50% - 5mm);
+            /* Esattamente 2 per riga con il gap da 10mm */
+            height: 190mm;
+            /* Altezza fissa per foglio A4 orizzontale (210mm - margini) */
             border: 2px solid #1a7a3a;
             border-radius: 10px;
             padding: 10mm;
             box-sizing: border-box;
+            page-break-inside: avoid;
+        }
+
+        /* Forza l'interruzione di pagina ogni 2 schede */
+        .print-card:nth-child(2n) {
+            page-break-after: always;
         }
 
         .print-card h2 {
