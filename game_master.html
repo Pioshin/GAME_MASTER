@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☘️ The O'Flannery Mystery — Game Master</title>
+    <meta name="description" content="Un'avventura RPG Cozy Mystery a tema irlandese per due giocatori. Risolvi il mistero della Pinta d'Oro scomparsa!">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════
+           DESIGN SYSTEM
+           ═══════════════════════════════════════════ */
+        :root {
+            --bg-deep: #0a0f0a;
+            --bg-card: rgba(15, 25, 15, 0.85);
+            --bg-glass: rgba(20, 40, 20, 0.5);
+            --gold: #c9a84c;
+            --gold-bright: #e8d48b;
+            --green: #1a7a3a;
+            --green-glow: #2ecc71;
+            --green-dark: #0d3d1a;
+            --text: #e8e0d4;
+            --text-dim: #9a917e;
+            --text-bright: #fff8e8;
+            --danger: #c0392b;
+            --purple: #6c3483;
+            --border: rgba(201, 168, 76, 0.3);
+            --shadow: 0 8px 32px rgba(0,0,0,0.5);
+            --glass-blur: blur(12px);
+            --radius: 12px;
+            --font-title: 'Cinzel', serif;
+            --font-body: 'Crimson Text', Georgia, serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(26, 122, 58, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(201, 168, 76, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(26, 122, 58, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgShift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgShift {
+            0%   { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--green); }
+        ::selection { background: var(--green); color: var(--text-bright); }
+
+        /* ═══════════════════════════════════════════
+           LAYOUT
+           ═══════════════════════════════════════════ */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.6s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══════════════════════════════════════════
+           GLASSMORPHISM PANELS
+           ═══════════════════════════════════════════ */
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .panel {
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* ═══════════════════════════════════════════
+           TYPOGRAPHY
+           ═══════════════════════════════════════════ */
+        h1, h2, h3 {
+            font-family: var(--font-title);
+            color: var(--gold);
+            letter-spacing: 1.5px;
+        }
+
+        h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+        h2 { font-size: clamp(1.2rem, 3vw, 1.6rem); margin-bottom: 12px; }
+        h3 { font-size: 1.1rem; margin-bottom: 8px; }
+
+        p, li { line-height: 1.7; font-size: 1.05rem; }
+
+        .subtitle {
+            font-style: italic;
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        /* ═══════════════════════════════════════════
+           BUTTONS
+           ═══════════════════════════════════════════ */
+        .btn {
+            font-family: var(--font-title);
+            font-size: 0.9rem;
+            padding: 12px 24px;
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--green-dark), var(--green));
+            color: var(--gold-bright);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 168, 76, 0.3);
+            border-color: var(--gold-bright);
+        }
+        .btn:hover::after { opacity: 1; }
+
+        .btn:active { transform: translateY(0); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a5c2e, #2ecc71);
+            font-size: 1rem;
+            padding: 16px 32px;
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #3a1561, #6c3483);
+            border-color: #9b59b6;
+        }
+        .btn-ai:hover { box-shadow: 0 6px 20px rgba(155, 89, 182, 0.3); }
+
+        .btn-dark {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-color: #4a5568;
+        }
+
+        .btn-full { width: 100%; }
+
+        /* ═══════════════════════════════════════════
+           INPUTS
+           ═══════════════════════════════════════════ */
+        input[type="text"], input[type="password"], textarea {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+        }
+
+        textarea { resize: vertical; min-height: 70px; }
+
+        input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+        label {
+            display: block;
+            font-family: var(--font-title);
+            font-size: 0.8rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .input-group { margin-bottom: 14px; }
+
+        /* ═══════════════════════════════════════════
+           SPLASH SCREEN
+           ═══════════════════════════════════════════ */
+        #splash {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+
+        .splash-icon {
+            font-size: 5rem;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-12px); }
+        }
+
+        .splash-title {
+            position: relative;
+            display: inline-block;
+        }
+
+        .splash-title h1 {
+            background: linear-gradient(135deg, var(--gold), var(--gold-bright), var(--gold));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0%   { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .splash-divider {
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 20px 0;
+        }
+
+        .splash-enter {
+            margin-top: 40px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
+            50%      { box-shadow: 0 0 0 15px rgba(46, 204, 113, 0); }
+        }
+
+        /* ═══════════════════════════════════════════
+           CONFIG BAR
+           ═══════════════════════════════════════════ */
+        .config-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .config-bar input { max-width: 350px; font-size: 0.85rem; }
+        .config-bar .label { color: var(--gold); font-family: var(--font-title); white-space: nowrap; font-size: 0.75rem; letter-spacing: 1px; }
+
+        /* ═══════════════════════════════════════════
+           SETUP SCREEN
+           ═══════════════════════════════════════════ */
+        .players-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .players-grid { grid-template-columns: 1fr; }
+        }
+
+        .player-card { padding: 20px; }
+
+        .player-card h3 {
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+
+        .setup-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .setup-actions .btn { flex: 1; }
+
+        @media (max-width: 600px) {
+            .setup-actions { flex-direction: column; }
+        }
+
+        /* ═══════════════════════════════════════════
+           GAME SCREEN — LAYOUT
+           ═══════════════════════════════════════════ */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .game-layout { grid-template-columns: 1fr; }
+        }
+
+        /* Story Area */
+        .chapter-badge {
+            display: inline-block;
+            font-family: var(--font-title);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--green-glow);
+            background: rgba(46, 204, 113, 0.1);
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            margin-bottom: 14px;
+        }
+
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-bright);
+            min-height: 80px;
+        }
+
+        /* Navigation */
+        .scene-nav {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .scene-nav .btn { font-size: 0.75rem; padding: 10px 12px; }
+
+        /* ═══════════════════════════════════════════
+           IRISH SLOT MACHINE 🍀
+           ═══════════════════════════════════════════ */
+        .slot-machine {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid var(--gold);
+            background: linear-gradient(180deg, #0d2818, #132e1a, #0d2818);
+            position: relative;
+        }
+
+        .slot-machine::before {
+            content: '🍀  Ruota della Fortuna  🍀';
+            display: block;
+            font-family: var(--font-title);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 14px;
+        }
+
+        .slot-reels {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .slot-reel {
+            width: 70px;
+            height: 80px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slot-reel-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.1s linear;
+            position: absolute;
+            width: 100%;
+        }
+
+        .slot-symbol {
+            width: 70px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            flex-shrink: 0;
+        }
+
+        .slot-result {
+            font-family: var(--font-title);
+            font-size: 0.95rem;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            color: var(--gold-bright);
+            line-height: 1.4;
+        }
+
+        .slot-result.legendary {
+            color: #f1c40f;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+            animation: legendaryGlow 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes legendaryGlow {
+            from { text-shadow: 0 0 5px rgba(241, 196, 15, 0.3); }
+            to   { text-shadow: 0 0 20px rgba(241, 196, 15, 0.7); }
+        }
+
+        .slot-result.fail {
+            color: #e74c3c;
+        }
+
+        .slot-lever-btn {
+            background: linear-gradient(135deg, #b8860b, #daa520, #b8860b) !important;
+            color: #1a1a2e !important;
+            border-color: #f0c040 !important;
+            font-weight: bold;
+        }
+
+        .slot-lever-btn:hover {
+            box-shadow: 0 6px 25px rgba(218, 165, 32, 0.4) !important;
+        }
+
+        @keyframes slotSpin {
+            0%   { filter: blur(0px); }
+            50%  { filter: blur(1px); }
+            100% { filter: blur(0px); }
+        }
+
+        .spinning .slot-reel {
+            animation: slotSpin 0.3s ease-in-out infinite;
+        }
+
+        /* ═══════════════════════════════════════════
+           AI PANEL
+           ═══════════════════════════════════════════ */
+        .ai-panel { padding: 18px; }
+
+        .ai-panel h3 {
+            color: #bb86fc;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row input { flex: 1; }
+
+        .ai-response {
+            font-style: italic;
+            color: #ce93d8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            min-height: 30px;
+            padding: 10px;
+            background: rgba(108, 52, 131, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(155, 89, 182, 0.15);
+        }
+
+        /* ═══════════════════════════════════════════
+           ADVENTURE LOG
+           ═══════════════════════════════════════════ */
+        .adventure-log {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(201, 168, 76, 0.1);
+            margin-top: 16px;
+        }
+
+        .log-entry {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .log-entry:last-child { border-bottom: none; }
+        .log-entry .log-time { color: var(--green); margin-right: 8px; font-size: 0.75rem; }
+        .log-entry .log-icon { margin-right: 4px; }
+
+        /* ═══════════════════════════════════════════
+           MUSIC PLAYER
+           ═══════════════════════════════════════════ */
+        .music-bar {
+            margin-bottom: 16px;
+            border-radius: 10px;
+            overflow: hidden;
+            opacity: 0.85;
+            transition: opacity 0.3s;
+        }
+        .music-bar:hover { opacity: 1; }
+
+        /* ═══════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════ */
+        .footer {
+            text-align: center;
+            padding: 30px 0 20px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .footer a { color: var(--gold); text-decoration: none; }
+
+        /* ═══════════════════════════════════════════
+           PRINT
+           ═══════════════════════════════════════════ */
+        @media print {
+            body { background: white; color: #333; }
+            body::before { display: none; }
+            .no-print { display: none !important; }
+            .print-only { display: flex !important; }
+        }
+
+        .print-only { display: none; }
+
+        .print-sheet {
+            width: 297mm;
+            height: 210mm;
+            background: white;
+            padding: 20mm;
+            display: flex;
+            gap: 10mm;
+            color: #333;
+        }
+
+        .print-card {
+            flex: 1;
+            border: 2px solid #1a7a3a;
+            border-radius: 10px;
+            padding: 15mm;
+        }
+
+        .print-card h2 {
+            color: #1a7a3a;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .print-card .field {
+            margin-bottom: 10px;
+        }
+        .print-card .field b { color: #1a7a3a; }
+        .print-card .notes-lines {
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+        }
+        .print-card .notes-lines div {
+            border-bottom: 1px solid #eee;
+            height: 28px;
+            margin-bottom: 4px;
+        }
+
+        /* ═══════════════════════════════════════════
+           SAVE INDICATOR
+           ═══════════════════════════════════════════ */
+        .save-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--green-dark);
+            color: var(--green-glow);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--green);
+            font-size: 0.85rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .save-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ SAVE TOAST ═══════════════════════ -->
+<div class="save-toast" id="saveToast">💾 Partita salvata</div>
+
+<!-- ═══════════════════════ SPLASH SCREEN ═══════════════════════ -->
+<div class="container">
+    <div id="splash" class="screen active">
+        <div class="splash-icon">☘️</div>
+        <div class="splash-title">
+            <h1>The O'Flannery Mystery</h1>
+        </div>
+        <div class="splash-divider"></div>
+        <p class="subtitle">Un'avventura di San Patrizio per due cuori e un trifoglio</p>
+        <p style="color: var(--text-dim); margin-top: 10px; font-size: 0.9rem;">RPG Cozy Mystery • 2 Giocatori • AI Game Master</p>
+        <button class="btn btn-primary splash-enter" onclick="goToSetup()" id="splashEnterBtn">
+            🍺 Entra nel Pub
+        </button>
+        <p id="resumeHint" style="display:none; margin-top: 14px;">
+            <button class="btn btn-dark" onclick="resumeGame()" id="resumeBtn">↩️ Riprendi partita salvata</button>
+        </p>
+    </div>
+
+    <!-- ═══════════════════════ SETUP SCREEN ═══════════════════════ -->
+    <div id="setup" class="screen no-print">
+        <h2 style="text-align:center; margin-bottom: 6px;">⚔️ Preparazione Avventurieri</h2>
+        <p class="subtitle" style="text-align:center; margin-bottom: 20px;">Scegliete nomi e tratti, poi entrate nel mistero!</p>
+
+        <div class="config-bar glass">
+            <span class="label">🔑 Gemini API Key</span>
+            <input type="password" id="apiKey" placeholder="Inserisci per attivare il Master AI...">
+        </div>
+
+        <div class="players-grid">
+            <div class="player-card glass panel">
+                <h3>🌸 Giocatrice</h3>
+                <div class="input-group">
+                    <label>Nome</label>
+                    <input type="text" id="p1_name" placeholder="Es: Bridget O'Sullivan">
+                </div>
+                <div class="input-group">
+                    <label>Tratti (3)</label>
+                    <textarea id="p1_traits" placeholder="Es: Lingua Tagliente, Occhio di Falco, Fascino Irresistibile"></textarea>
+                </div>
+            </div>
+            <div class="player-card glass panel">
+                <h3>🎩 Giocatore</h3>
+                <div class="input-group">
+                    <label>Nome</label>
+                    <input type="text" id="p2_name" placeholder="Es: Declan O'Flannery">
+                </div>
+                <div class="input-group">
+                    <label>Tratti (3)</label>
+                    <textarea id="p2_traits" placeholder="Es: Fortuna Sfacciata, Pugni d'Acciaio, Cuore Tenero"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="setup-actions">
+            <button class="btn btn-dark" onclick="window.print()" id="printBtn">🖨️ Stampa Schede</button>
+            <button class="btn btn-primary" onclick="startGame()" id="startGameBtn">Inizia il Mistero ➡️</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════ GAME SCREEN ═══════════════════════ -->
+    <div id="game" class="screen no-print">
+
+        <div class="music-bar">
+            <iframe width="100%" height="80" src="" id="musicPlayer" frameborder="0" allow="autoplay" style="border-radius: 10px;"></iframe>
+        </div>
+
+        <div class="game-layout">
+            <!-- LEFT: Story Column -->
+            <div>
+                <div class="glass panel">
+                    <span class="chapter-badge" id="chapterBadge">Prologo: Il Pub</span>
+                    <div class="story-text" id="storyText">
+                        Siete al "Trifoglio Ubriaco", l'unico pub di Ballymore. Il fuoco scoppietta nel camino, l'odore di birra scura e torta di mele riempie l'aria. Mastro Seamus — baffoni rossicci e grembiule unto — vi si avvicina con due birre (rigorosamente analcoliche, per le indagini!) e un tremore nel labbro inferiore.<br><br>
+                        <em>"La Pinta d'Oro... è sparita! La coppa del festival, quella che era della mia bisnonna! C'erano solo impronte di stivali sporchi di polline dorato verso il ruscello..."</em>
+                    </div>
+
+                    <div class="scene-nav" id="sceneNav">
+                        <button class="btn" onclick="changeScene(1)" id="scene1Btn">🌊 Cap. 1: Il Ruscello</button>
+                        <button class="btn" onclick="changeScene(2)" id="scene2Btn">🌲 Cap. 2: Il Bosco Antico</button>
+                        <button class="btn" onclick="changeScene(3)" id="scene3Btn">🎪 Cap. 3: La Piazza</button>
+                        <button class="btn" onclick="changeScene(4)" id="scene4Btn">🏆 Finale</button>
+                    </div>
+                </div>
+
+                <!-- AI Panel -->
+                <div class="ai-panel glass">
+                    <h3>✨ Chiedi al Gran Maestro AI</h3>
+                    <div class="ai-input-row">
+                        <input type="text" id="aiQuery" placeholder="Es: 'Cosa notiamo nel ruscello?'" onkeydown="if(event.key==='Enter')askAI()">
+                        <button class="btn btn-ai" onclick="askAI()" id="askAiBtn">Chiedi</button>
+                    </div>
+                    <div class="ai-response" id="aiResponse">Il Master AI attende le vostre domande...</div>
+                </div>
+
+                <!-- Adventure Log -->
+                <div class="glass panel" style="padding: 16px;">
+                    <h3 style="font-size: 0.85rem; margin-bottom: 8px;">📜 Diario dell'Avventura</h3>
+                    <div class="adventure-log" id="adventureLog">
+                        <div class="log-entry"><span class="log-icon">🍺</span> L'avventura ha inizio al Trifoglio Ubriaco...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Tools Column -->
+            <div>
+                <!-- Slot Machine -->
+                <div class="slot-machine glass" id="slotMachine">
+                    <div class="slot-reels" id="slotReels">
+                        <div class="slot-reel">
+                            <div class="slot-reel-inner" id="reel1"></div>
+                        </div>
+                        <div class="slot-reel">
+                            <div class="slot-reel-inner" id="reel2"></div>
+                        </div>
+                        <div class="slot-reel">
+                            <div class="slot-reel-inner" id="reel3"></div>
+                        </div>
+                    </div>
+                    <div class="slot-result" id="slotResult">Tenta la fortuna! 🍀</div>
+                    <button class="btn slot-lever-btn btn-full" onclick="pullLever()" id="pullLeverBtn">
+                        🎰 Tira la Leva!
+                    </button>
+                    <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 10px;">
+                        Tre uguali = Leggendario! • Due uguali = Successo!
+                    </p>
+                </div>
+
+                <!-- Players Summary -->
+                <div class="glass panel" style="margin-top: 16px; padding: 16px;">
+                    <h3 style="font-size: 0.85rem;">🎭 Avventurieri</h3>
+                    <div id="playersSummary" style="font-size: 0.85rem; color: var(--text-dim); margin-top: 8px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════ PRINT SHEETS ═══════════════════════ -->
+<div class="print-only print-sheet">
+    <div class="print-card">
+        <h2 id="print_n1">☘️ Eroina</h2>
+        <div class="field"><b>Tratti:</b> <span id="print_t1">—</span></div>
+        <div class="field"><b>Inventario:</b> ________________________</div>
+        <div class="notes-lines">
+            <b>Note:</b>
+            <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+        </div>
+    </div>
+    <div class="print-card">
+        <h2 id="print_n2">☘️ Eroe</h2>
+        <div class="field"><b>Tratti:</b> <span id="print_t2">—</span></div>
+        <div class="field"><b>Inventario:</b> ________________________</div>
+        <div class="notes-lines">
+            <b>Note:</b>
+            <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<div class="footer no-print">
+    ☘️ The O'Flannery Mystery — Built with ❤️ and a pint of Guinness
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   GAME ENGINE
+   ═══════════════════════════════════════════════════════════ */
+
+const SYMBOLS = ['☘️', '🍺', '🎵', '🌈', '🏆', '🎩', '🐑', '🍀'];
+
+const SCENES = {
+    0: {
+        title: 'Prologo: Il Pub',
+        text: `Siete al "Trifoglio Ubriaco", l'unico pub di Ballymore. Il fuoco scoppietta nel camino, l'odore di birra scura e torta di mele riempie l'aria. Mastro Seamus — baffoni rossicci e grembiule unto — vi si avvicina con due birre (rigorosamente analcoliche, per le indagini!) e un tremore nel labbro inferiore.<br><br><em>"La Pinta d'Oro... è sparita! La coppa del festival, quella che era della mia bisnonna! C'erano solo impronte di stivali sporchi di polline dorato verso il ruscello..."</em>`
+    },
+    1: {
+        title: 'Cap. 1: Il Ruscello Sussurrante',
+        text: `Il sentiero dietro il pub vi porta al ruscello. L'acqua brilla con un luccichio innaturale — minuscole pagliuzze dorate danzano nella corrente. Sulla riva fangosa trovate una scarpetta piccolissima col tacco rotto, decorata con filigrana d'argento. Sembra che qualcuno stesse correndo <em>molto</em> velocemente.<br><br>Un pescatore, Tommy il Rosso, vi osserva dalla riva opposta con un sorriso sospetto.<br><br><em>"Cercate qualcosa? Io non ho visto niente... ma ieri sera ho sentito un canto strano dal bosco. E il ruscello non brillava così prima di stanotte..."</em>`
+    },
+    2: {
+        title: 'Cap. 2: Il Bosco Antico',
+        text: `Gli alberi ancestrali del Bosco di Brigid si chiudono sopra di voi come una cattedrale verde. La luce filtra in raggi dorati. Un gruppo di scoiattoli vi osserva nervosamente dall'alto, e uno di loro sta cercando di sollevare qualcosa di pesante nascosto sotto le foglie — un panno di velluto verde ricamato con un trifoglio d'oro.<br><br>Più avanti, un cerchio di funghi perfetto — un <em>fairy ring</em> — circonda un tronco cavo. Dentro, trovate un biglietto scarabocchiato: <em>"Per il festival. Deve essere perfetta. — M."</em><br><br>Al margine del sentiero, impronte di stivali che proseguono verso la piazza del villaggio.`
+    },
+    3: {
+        title: 'Cap. 3: La Piazza del Festival',
+        text: `La piazza di Ballymore è un'esplosione di verde e oro. Ghirlande ovunque, musicisti che accordano violini e cornamuse. Al centro, il palco del festival è quasi pronto.<br><br>Alla bancarella dei fiori, l'anziana fioraia Mary — guance rosse e mani sporche di terra — sta lucidando con dedizione qualcosa nascosto sotto il bancone. Quando vi vede, trasalisce e copre l'oggetto con un panno.<br><br><em>"Oh! Siete qui per i fiori? Ho delle splendide rose di Shannon..."</em> Il suo sguardo sfugge nervosamente verso il panno. Un riflesso dorato traspare dal tessuto.<br><br>Il vecchio Paddy, dal barbiere accanto, bisbiglia: <em>"La Mary si è comportata strana tutta la settimana. Va e viene dal bosco di notte..."</em>`
+    },
+    4: {
+        title: '🏆 Finale: Il Dolce Malinteso',
+        text: `La verità emerge con un colpo di scena romantico! Non era affatto un furto. Mary aveva preso la Pinta d'Oro per usarla come vaso per il <em>"Trifoglio dell'Amore Eterno"</em> — una pianta rarissima che fiorisce solo a San Patrizio e che, secondo la leggenda, unisce due cuori per sempre.<br><br>E il destinatario? Proprio Mastro Seamus! Mary e Seamus si amano in segreto da quarant'anni, troppo timidi per dirselo.<br><br><em>Mary, rossa come un tramonto d'Irlanda, porge la coppa piena di trifogli fioriti a Seamus. "Per te, vecchio burbero. Da quarant'anni volevo dirtelo..."</em><br><br>Il pub esplode in un applauso. Tommy il Rosso tira fuori il violino. Come reagite voi due? 🍀💕`
+    }
+};
+
+const SLOT_OUTCOMES = {
+    triple: [
+        { text: "✨ TRE UGUALI! SUCCESSO LEGGENDARIO! Siete i nuovi Sherlock di Ballymore!", value: 20 },
+        { text: "✨ JACKPOT CELTICO! Le fate benedicono la vostra azione!", value: 20 },
+    ],
+    double: [
+        { text: "✅ Due uguali! Successo! Il vostro intuito vi guida bene.", value: 15 },
+        { text: "✅ Coppia fortunata! La dea Brigid vi sorride.", value: 14 },
+        { text: "✅ Due simboli! Riuscite nell'impresa con stile.", value: 13 },
+    ],
+    allDifferent: [
+        { text: "⚠️ Tutti diversi... successo parziale. Ottenete ciò che volete, ma succede qualcosa di buffo.", value: 8 },
+        { text: "⚠️ Misto! Funziona... ma non come previsto. Il leprecauno ride.", value: 7 },
+        { text: "☘️ Sfortuna! Inciampate in un secchio di vernice verde. Ma trovate un indizio!", value: 4 },
+        { text: "🐑 Una pecora vi taglia la strada! Perdete un turno ma guadagnate lana.", value: 3 },
+    ]
+};
+
+// ═══ State ═══
+let gameState = {
+    currentScene: 0,
+    p1: { name: '', traits: '' },
+    p2: { name: '', traits: '' },
+    apiKey: '',
+    log: [],
+    aiHistory: []
+};
+
+// ═══ Screen Navigation ═══
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function goToSetup() {
+    showScreen('setup');
+}
+
+function startGame() {
+    gameState.p1.name = document.getElementById('p1_name').value || 'Eroina';
+    gameState.p1.traits = document.getElementById('p1_traits').value || 'Misteriosa';
+    gameState.p2.name = document.getElementById('p2_name').value || 'Eroe';
+    gameState.p2.traits = document.getElementById('p2_traits').value || 'Coraggioso';
+    gameState.apiKey = document.getElementById('apiKey').value;
+
+    updatePlayersSummary();
+    showScreen('game');
+    loadMusicPlayer();
+    addLog('🍺', `${gameState.p1.name} e ${gameState.p2.name} iniziano l'avventura!`);
+    saveGame();
+}
+
+function updatePlayersSummary() {
+    document.getElementById('playersSummary').innerHTML = `
+        <div style="margin-bottom: 8px;"><strong style="color: var(--gold);">🌸 ${gameState.p1.name}</strong><br>${gameState.p1.traits}</div>
+        <div><strong style="color: var(--gold);">🎩 ${gameState.p2.name}</strong><br>${gameState.p2.traits}</div>
+    `;
+}
+
+function loadMusicPlayer() {
+    document.getElementById('musicPlayer').src =
+        'https://www.youtube.com/embed/videoseries?list=PL46U_mYm10GvM3XfKInu9vT_n6GvB4Osq&autoplay=1&loop=1';
+}
+
+// ═══ Scene Navigation ═══
+function changeScene(i) {
+    const scene = SCENES[i];
+    if (!scene) return;
+    gameState.currentScene = i;
+
+    document.getElementById('chapterBadge').textContent = scene.title;
+    document.getElementById('storyText').innerHTML = scene.text;
+
+    addLog('📖', `Capitolo: ${scene.title}`);
+    saveGame();
+
+    // Scroll to story
+    document.getElementById('storyText').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ═══ Irish Slot Machine ═══
+let isSpinning = false;
+
+function initReels() {
+    for (let r = 1; r <= 3; r++) {
+        const reel = document.getElementById(`reel${r}`);
+        reel.innerHTML = '';
+        // Fill with symbols (repeated for scrolling effect)
+        const allSymbols = [...SYMBOLS, ...SYMBOLS, ...SYMBOLS];
+        allSymbols.forEach(sym => {
+            const div = document.createElement('div');
+            div.className = 'slot-symbol';
+            div.textContent = sym;
+            reel.appendChild(div);
+        });
+        // Show first symbol
+        reel.style.transform = 'translateY(0px)';
+    }
+}
+
+function pullLever() {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    const machine = document.getElementById('slotMachine');
+    machine.classList.add('spinning');
+    document.getElementById('slotResult').textContent = '🎰 Girando...';
+    document.getElementById('slotResult').className = 'slot-result';
+
+    // Pick final symbols
+    const results = [
+        SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+        SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+        SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
+    ];
+
+    // Animate each reel with staggered timing
+    const reelElements = [
+        document.getElementById('reel1'),
+        document.getElementById('reel2'),
+        document.getElementById('reel3')
+    ];
+
+    const symbolHeight = 80;
+    const spinsBase = 8; // base number of spins
+
+    reelElements.forEach((reel, idx) => {
+        const targetIndex = SYMBOLS.indexOf(results[idx]);
+        // Reset reel contents with result at end
+        const allSymbols = [];
+        const totalSymbols = spinsBase * SYMBOLS.length + targetIndex + 1;
+        for (let i = 0; i < totalSymbols; i++) {
+            allSymbols.push(SYMBOLS[i % SYMBOLS.length]);
+        }
+        // Ensure the last visible symbol is our result
+        allSymbols.push(results[idx]);
+
+        reel.innerHTML = '';
+        allSymbols.forEach(sym => {
+            const div = document.createElement('div');
+            div.className = 'slot-symbol';
+            div.textContent = sym;
+            reel.appendChild(div);
+        });
+
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateY(0px)';
+
+        // Force reflow
+        reel.offsetHeight;
+
+        const duration = 1.2 + idx * 0.5; // staggered stop
+        const targetY = -(allSymbols.length - 1) * symbolHeight;
+
+        reel.style.transition = `transform ${duration}s cubic-bezier(0.2, 0.8, 0.3, 1)`;
+        reel.style.transform = `translateY(${targetY}px)`;
+    });
+
+    // Resolve after last reel stops
+    const totalDuration = (1.2 + 2 * 0.5) * 1000 + 200;
+
+    setTimeout(() => {
+        machine.classList.remove('spinning');
+        isSpinning = false;
+        resolveSlot(results);
+    }, totalDuration);
+}
+
+function resolveSlot(results) {
+    const [a, b, c] = results;
+    let outcome;
+    let cssClass = '';
+
+    if (a === b && b === c) {
+        // Triple!
+        outcome = SLOT_OUTCOMES.triple[Math.floor(Math.random() * SLOT_OUTCOMES.triple.length)];
+        cssClass = 'legendary';
+    } else if (a === b || b === c || a === c) {
+        // Double
+        outcome = SLOT_OUTCOMES.double[Math.floor(Math.random() * SLOT_OUTCOMES.double.length)];
+    } else {
+        // All different
+        outcome = SLOT_OUTCOMES.allDifferent[Math.floor(Math.random() * SLOT_OUTCOMES.allDifferent.length)];
+        if (outcome.value <= 4) cssClass = 'fail';
+    }
+
+    const resultEl = document.getElementById('slotResult');
+    resultEl.textContent = outcome.text;
+    resultEl.className = `slot-result ${cssClass}`;
+
+    addLog('🎰', `[${results.join(' ')}] → ${outcome.text}`);
+    saveGame();
+}
+
+// ═══ AI Master ═══
+async function askAI() {
+    const key = gameState.apiKey || document.getElementById('apiKey').value;
+    const query = document.getElementById('aiQuery').value.trim();
+    const respBox = document.getElementById('aiResponse');
+
+    if (!key) {
+        respBox.textContent = "🔑 Inserisci l'API Key nella schermata di setup per parlare col Master AI!";
+        return;
+    }
+    if (!query) return;
+
+    respBox.textContent = "🌫️ Il Master sta riflettendo tra le nebbie d'Irlanda...";
+    document.getElementById('aiQuery').value = '';
+
+    const currentScene = SCENES[gameState.currentScene];
+    const context = `
+Sei il Game Master di un RPG Cozy Mystery ambientato a Ballymore, un villaggio irlandese immaginario, durante la festa di San Patrizio.
+Il tono è ironico, romantico e divertente. Rispondi SEMPRE in italiano.
+Dai suggerimenti creativi, descrivi ambienti con dettagli sensoriali, e mantieni il mistero avvincente.
+Non rivelare il finale a meno che i giocatori non siano al Capitolo Finale.
+
+GIOCATORI:
+- ${gameState.p1.name}: ${gameState.p1.traits}
+- ${gameState.p2.name}: ${gameState.p2.traits}
+
+SCENA ATTUALE: ${currentScene.title}
+TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}
+
+${gameState.aiHistory.length > 0 ? 'CONVERSAZIONE PRECEDENTE:\n' + gameState.aiHistory.slice(-6).map(h => `${h.role}: ${h.text}`).join('\n') : ''}
+
+DOMANDA DEL GIOCATORE: ${query}
+    `.trim();
+
+    gameState.aiHistory.push({ role: 'Giocatore', text: query });
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: context }] }],
+                generationConfig: {
+                    temperature: 0.9,
+                    maxOutputTokens: 500
+                }
+            })
+        });
+
+        const data = await response.json();
+        if (data.candidates && data.candidates[0]) {
+            const aiText = data.candidates[0].content.parts[0].text;
+            respBox.textContent = aiText;
+            gameState.aiHistory.push({ role: 'Master', text: aiText });
+            addLog('✨', `AI: "${query}" → risposta ricevuta`);
+        } else {
+            respBox.textContent = "Il Master tace... forse la domanda è troppo misteriosa. Riprova!";
+        }
+    } catch (e) {
+        respBox.textContent = "⚠️ Errore di connessione. Forse la chiave è errata o il leprecauno dei server è in sciopero.";
+    }
+
+    saveGame();
+}
+
+// ═══ Adventure Log ═══
+function addLog(icon, text) {
+    const now = new Date();
+    const time = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+    gameState.log.push({ icon, text, time });
+
+    const logEl = document.getElementById('adventureLog');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="log-time">${time}</span><span class="log-icon">${icon}</span>${text}`;
+    logEl.appendChild(entry);
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+// ═══ Save / Load ═══
+function saveGame() {
+    try {
+        localStorage.setItem('oflannery_save', JSON.stringify(gameState));
+        showSaveToast();
+    } catch (e) { /* silent */ }
+}
+
+function loadGame() {
+    try {
+        const saved = localStorage.getItem('oflannery_save');
+        if (saved) {
+            gameState = JSON.parse(saved);
+            return true;
+        }
+    } catch (e) { /* silent */ }
+    return false;
+}
+
+function resumeGame() {
+    if (loadGame()) {
+        // Restore fields
+        document.getElementById('p1_name').value = gameState.p1.name;
+        document.getElementById('p1_traits').value = gameState.p1.traits;
+        document.getElementById('p2_name').value = gameState.p2.name;
+        document.getElementById('p2_traits').value = gameState.p2.traits;
+        if (gameState.apiKey) document.getElementById('apiKey').value = gameState.apiKey;
+
+        updatePlayersSummary();
+        showScreen('game');
+        loadMusicPlayer();
+
+        // Restore scene
+        changeScene(gameState.currentScene);
+
+        // Restore log
+        const logEl = document.getElementById('adventureLog');
+        logEl.innerHTML = '';
+        gameState.log.forEach(entry => {
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            div.innerHTML = `<span class="log-time">${entry.time}</span><span class="log-icon">${entry.icon}</span>${entry.text}`;
+            logEl.appendChild(div);
+        });
+
+        addLog('↩️', 'Partita ripresa!');
+    }
+}
+
+function showSaveToast() {
+    const toast = document.getElementById('saveToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1500);
+}
+
+// ═══ Print ═══
+window.onbeforeprint = function () {
+    document.getElementById('print_n1').textContent = '☘️ ' + (document.getElementById('p1_name').value || 'Eroina');
+    document.getElementById('print_t1').textContent = document.getElementById('p1_traits').value || '—';
+    document.getElementById('print_n2').textContent = '☘️ ' + (document.getElementById('p2_name').value || 'Eroe');
+    document.getElementById('print_t2').textContent = document.getElementById('p2_traits').value || '—';
+};
+
+// ═══ Init ═══
+document.addEventListener('DOMContentLoaded', () => {
+    initReels();
+
+    // Check for saved game
+    if (localStorage.getItem('oflannery_save')) {
+        document.getElementById('resumeHint').style.display = 'block';
+    }
+});
+</script>
+</body>
+</html>
