@@ -1291,17 +1291,19 @@
             document.getElementById('aiQuery').value = '';
 
             const currentScene = SCENES[gameState.currentScene];
-            const contextText = `Sei il Game Master di un RPG Cozy Mystery ambientato a Ballymore, un villaggio irlandese immaginario, durante la festa di San Patrizio. Il tono è ironico, romantico e divertente. Rispondi SEMPRE in italiano.
+            const systemPrompt = `Sei il Game Master di un RPG Cozy Mystery ambientato a Ballymore, un villaggio irlandese immaginario, durante la festa di San Patrizio. 
+Il tono è ironico, romantico e divertente. Rispondi SEMPRE in italiano.
+Descrivi gli ambienti con dettagli sensoriali e mantieni il mistero avvincente senza rivelare subito la soluzione.
+NON usare tag HTML o markdown complessi, limitati al testo piano (grassetto ** e corsivo * sono ammessi).`;
 
-GIOCATORI:
+            let promptBody = `GIOCATORI:
 ${gameState.players.map(p => `- ${p.name}: ${p.traits}`).join('\n')}
 
 SCENA ATTUALE: ${currentScene.title}
 TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}`;
 
-            let promptBody = contextText;
             if (gameState.aiHistory.length > 0) {
-                promptBody += `\nSTORIA PRECEDENTE:\n` + gameState.aiHistory.slice(-4).map(h => `${h.role}: ${h.text}`).join('\n');
+                promptBody += `\n\nSTORIA PRECEDENTE:\n` + gameState.aiHistory.slice(-4).map(h => `${h.role}: ${h.text}`).join('\n');
             }
             promptBody += `\n\nDOMANDA GIOCATORE: ${query}`;
 
@@ -1311,13 +1313,18 @@ TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}`;
                 let aiText = "";
 
                 if (provider === 'gemini') {
-                    // --- CHIAMATA GEMINI ---
+                    // --- CHIAMATA GEMINI (v1beta con system_instruction) ---
                     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${key}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
+                            system_instruction: { parts: [{ text: systemPrompt }] },
                             contents: [{ parts: [{ text: promptBody }] }],
-                            generationConfig: { temperature: 0.9, maxOutputTokens: 600 }
+                            generationConfig: { 
+                                temperature: 0.85, 
+                                maxOutputTokens: 1024,
+                                topP: 0.95
+                            }
                         })
                     });
 
@@ -1325,7 +1332,13 @@ TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}`;
                     if (!response.ok) throw new Error((data.error && data.error.message) ? data.error.message : "Errore dal Server Google");
 
                     if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                        aiText = data.candidates[0].content.parts[0].text;
+                        // Uniamo tutte le parti (nel caso il modello ne restituisca più di una)
+                        aiText = data.candidates[0].content.parts.map(p => p.text).join('');
+                        
+                        // Controllo troncamento per limiti di token
+                        if (data.candidates[0].finishReason === 'MAX_TOKENS') {
+                            aiText += "... [Risposta troncata per lunghezza, chiedimi di continuare!]";
+                        }
                     } else {
                         throw new Error("Il Master tace... forse la domanda viola i criteri di sicurezza.");
                     }
@@ -1335,7 +1348,7 @@ TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}`;
                     if (key) headers['Authorization'] = `Bearer ${key}`;
 
                     const messages = [
-                        { role: 'system', content: "Sei il Game Master di un'avventura Cozy Mystery in Irlanda. Rispondi in italiano con tono brillante e misterioso." },
+                        { role: 'system', content: systemPrompt },
                         { role: 'user', content: promptBody }
                     ];
 
@@ -1345,8 +1358,8 @@ TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}`;
                         body: JSON.stringify({
                             model: modelId || undefined,
                             messages: messages,
-                            temperature: 0.9,
-                            max_tokens: 600
+                            temperature: 0.85,
+                            max_tokens: 1024
                         })
                     });
 
