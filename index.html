@@ -854,8 +854,16 @@
                 mistero!</p>
 
             <div class="config-bar glass">
-                <span class="label">🔑 Gemini API Key</span>
-                <input type="password" id="apiKey" placeholder="Inserisci per attivare il Master AI..." style="flex:1;">
+                <span class="label">🤖 Provider</span>
+                <select id="aiProvider" style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body);" onchange="toggleProviderUI()">
+                    <option value="gemini">Google Gemini</option>
+                    <option value="openai">Ollama / OpenAI (Locale)</option>
+                </select>
+
+                <input type="text" id="aiBaseUrl" placeholder="Es: http://localhost:11434/v1" style="display:none; max-width:200px; font-size:0.8rem;" title="Base URL per OpenAI/Ollama">
+                
+                <span class="label" id="apiKeyLabel" style="margin-left:10px;">🔑 API Key</span>
+                <input type="password" id="apiKey" placeholder="Chiave API (Ollama spesso non la richiede)..." style="flex:1;">
 
                 <span class="label" style="margin-left:10px;">🧠 Modello</span>
                 <div style="display:flex; gap:8px;">
