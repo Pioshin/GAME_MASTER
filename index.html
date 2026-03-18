@@ -853,35 +853,41 @@
             <p class="subtitle" style="text-align:center; margin-bottom: 20px;">Scegliete nomi e tratti, poi entrate nel
                 mistero!</p>
 
-            <div class="config-bar glass">
-                <span class="label">🤖 Provider</span>
-                <select id="aiProvider" style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body);" onchange="toggleProviderUI()">
-                    <option value="gemini">Google Gemini</option>
-                    <option value="openai">Ollama / OpenAI (Locale)</option>
-                </select>
-
-                <input type="text" id="aiBaseUrl" placeholder="Es: http://localhost:11434/v1" style="display:none; max-width:200px; font-size:0.8rem;" title="Base URL per OpenAI/Ollama">
-                
-                <span class="label" id="apiKeyLabel" style="margin-left:10px;">🔑 API Key</span>
-                <input type="password" id="apiKey" placeholder="Chiave API (Ollama spesso non la richiede)..." style="flex:1;">
-
-                <span class="label" style="margin-left:10px;">🧠 Modello</span>
-                <div style="display:flex; gap:8px;">
-                    <select id="aiModel" style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body); max-width: 250px;">
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Inserisci API e clicca 🔄)</option>
+            <div class="config-bar glass" style="flex-wrap: wrap; justify-content: center; gap: 15px;">
+                <div style="display:flex; align-items:center; gap:10px; min-width:250px;">
+                    <span class="label">🤖 Provider</span>
+                    <select id="aiProvider" style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body); flex:1;" onchange="toggleProviderUI()">
+                        <option value="gemini">Google Gemini</option>
+                        <option value="openai">Ollama / OpenAI (Locale)</option>
                     </select>
-                    <button type="button" onclick="fetchAvailableModels()" style="background:var(--green-dark); border:1px solid var(--border); color:var(--gold); border-radius:5px; cursor:pointer; padding:0 10px;" title="Cerca modelli disponibili nell'account">🔄</button>
                 </div>
 
-                <span class="label" style="margin-left:auto;">👥 Giocatori</span>
-                <select id="playerCount" onchange="generatePlayerInputs()"
-                    style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body);">
-                    <option value="2">2 Giocatori</option>
-                    <option value="3">3 Giocatori</option>
-                    <option value="4">4 Giocatori</option>
-                    <option value="5">5 Giocatori</option>
-                    <option value="6">6 Giocatori</option>
-                </select>
+                <div style="display:flex; align-items:center; gap:10px; min-width:250px; flex:1;">
+                    <input type="text" id="aiBaseUrl" placeholder="Es: http://localhost:11434/v1" style="display:none; flex:1; font-size:0.8rem;" title="Base URL per OpenAI/Ollama">
+                    
+                    <span class="label" id="apiKeyLabel">🔑 API Key</span>
+                    <input type="password" id="apiKey" placeholder="Chiave API..." style="flex:2; min-width:150px;">
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; min-width:300px;">
+                    <span class="label">🧠 Modello</span>
+                    <select id="aiModel" style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body); flex:1;">
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Inserisci API e clicca 🔄)</option>
+                    </select>
+                    <button type="button" onclick="fetchAvailableModels()" style="background:var(--green-dark); border:1px solid var(--border); color:var(--gold); border-radius:5px; cursor:pointer; padding:0 15px; height:35px;" title="Cerca modelli disponibili nell'account">🔄</button>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; min-width:150px;">
+                    <span class="label">👥 Giocatori</span>
+                    <select id="playerCount" onchange="generatePlayerInputs()"
+                        style="padding:8px; border-radius:5px; background:rgba(0,0,0,0.5); color:var(--text); border:1px solid var(--border); font-family:var(--font-body); flex:1;">
+                        <option value="2">2 Giocatori</option>
+                        <option value="3">3 Giocatori</option>
+                        <option value="4">4 Giocatori</option>
+                        <option value="5">5 Giocatori</option>
+                        <option value="6">6 Giocatori</option>
+                    </select>
+                </div>
             </div>
 
             <div class="players-grid" id="playersGrid">
