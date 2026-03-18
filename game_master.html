@@ -644,6 +644,9 @@
             background: rgba(108, 52, 131, 0.1);
             border-radius: 8px;
             border: 1px solid rgba(155, 89, 182, 0.15);
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         /* ═══════════════════════════════════════════
@@ -915,10 +918,11 @@
                     <!-- AI Panel -->
                     <div class="ai-panel glass">
                         <h3>✨ Chiedi al Gran Maestro AI</h3>
-                        <div class="ai-input-row">
-                            <input type="text" id="aiQuery" placeholder="Es: 'Cosa notiamo nel ruscello?'"
-                                onkeydown="if(event.key==='Enter')askAI()">
-                            <button class="btn btn-ai" onclick="askAI()" id="askAiBtn">Chiedi</button>
+                        <div class="ai-input-row" style="align-items: flex-start;">
+                            <textarea id="aiQuery" placeholder="Es: 'Cosa notiamo nel ruscello?'"
+                                rows="2" style="flex:1; resize:vertical;" 
+                                onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); askAI(); }"></textarea>
+                            <button class="btn btn-ai" onclick="askAI()" id="askAiBtn" style="height: 100%;">Chiedi</button>
                         </div>
                         <div class="ai-response" id="aiResponse">Il Master AI attende le vostre domande...</div>
                     </div>
