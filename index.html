@@ -1354,8 +1354,9 @@ TESTO SCENA: ${currentScene.text.replace(/<[^>]*>/g, '')}`;
                     }
                 }
 
-                // Format markdown
-                const formattedText = aiText
+                // Format markdown and protect HTML tags
+                let safeText = aiText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const formattedText = safeText
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\*(.*?)\*/g, '<em style="color:#ce93d8;">$1</em>')
                     .replace(/\n/g, '<br>'); // aggiungo <br> per i newline del text normale per sicurezza
