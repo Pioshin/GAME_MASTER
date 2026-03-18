@@ -1274,16 +1274,22 @@ DOMANDA DEL GIOCATORE: ${query}
                 });
 
                 const data = await response.json();
-                if (data.candidates && data.candidates[0]) {
+                if (!response.ok) {
+                    throw new Error((data.error && data.error.message) ? data.error.message : "Errore Sconosciuto dal Server");
+                }
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
                     const aiText = data.candidates[0].content.parts[0].text;
                     respBox.textContent = aiText;
                     gameState.aiHistory.push({ role: 'Master', text: aiText });
                     addLog('✨', `AI: "${query}" → risposta ricevuta`);
                 } else {
-                    respBox.textContent = "Il Master tace... forse la domanda è troppo misteriosa. Riprova!";
+                    console.error("Risposta inattesa:", data);
+                    respBox.textContent = "Il Master tace... forse la domanda viola i criteri di sicurezza oppure è troppo misteriosa. Riprova!";
                 }
             } catch (e) {
-                respBox.textContent = "⚠️ Errore di connessione. Forse la chiave è errata o il leprecauno dei server è in sciopero.";
+                console.error("Errore API", e);
+                respBox.textContent = `⚠️ Errore API: ${e.message}`;
             }
 
             saveGame();
